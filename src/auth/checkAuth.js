@@ -25,7 +25,7 @@ const apiKey = async (req,res,next) => {
             console.log("Null objectKey")
             return res.json({
                 status: 403,
-                message: "Forbiden Error"
+                message: "Forbidden Error"
             })
         }
         req.objectKey = objectKey
@@ -37,24 +37,30 @@ const apiKey = async (req,res,next) => {
     }
 }
 
-const permission = ( permissions ) => {
+const permission = ( permission ) => {
     return ( req, res, next ) => {
         if (!req.objectKey.permissions)
         {
-            console.log("INvalid objectKey permission")
+            console.log("Couldn't find API permission")
 
             return res.json({
                 status: 403,
-                message: "Forbiden Error"
+                message: "Forbidden Error"
             })
         }
-        console.log(req.objectKey.permissions)
+        if (!req.objectKey.permissions.includes(permission))
+        {
+            return res.json({
+                status: 403,
+                message: "Invalid permission"
+            })
+        }
         return next()
     }
 }
 
 
-const asyncHandler = fn =>{
+const asyncHandler = (fn) =>{
     return (req,res,next) => {
         fn(req,res,next).catch(next)
     }
