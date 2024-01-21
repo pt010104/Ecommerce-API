@@ -5,8 +5,7 @@
     + Dev: The friendly enviroment for users to view: method request, URL, status code and process time
     + Short: method request, URL and status code
 - Helmet: Helmet is used to hide important information of header. They help prevent hacker attacks on your technology.
-    Before using helmet:
-
+    + Before using helmet:
         HTTP/1.1 200 OK
         X-Powered-By: Express
         Content-Type: application/json; charset=utf-8
@@ -16,7 +15,7 @@
         Connection: keep-alive
         Keep-Alive: timeout=5
 
-    After using helmet:
+    + After using helmet:
         HTTP/1.1 200 OK
         Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
         Cross-Origin-Opener-Policy: same-origin

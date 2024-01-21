@@ -1,6 +1,6 @@
 const config = require("../configs/dbConfig")
 
-class User {
+class Shop {
     async findByEmail (email){
         try {
             const query = "SELECT * FROM shop WHERE email = $1"
@@ -26,4 +26,4 @@ class User {
     }
 }
 
-module.exports = new User()
+module.exports = new Shop()

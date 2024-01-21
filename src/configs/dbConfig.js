@@ -1,4 +1,4 @@
-require ("dotenv").config
+require ("dotenv").config()
 const pg = require ("pg")
 
 const dev = {
@@ -24,6 +24,6 @@ const pro = { //product
 }
 
 const config = {dev,pro}
-const envMode =  process.env.MODE_ENV || "dev"
+const envMode =  process.env.NODE_ENV || "dev"
 
 module.exports = config[envMode] 
