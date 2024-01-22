@@ -1,17 +1,49 @@
-const config = require("../configs/dbConfig")
+const {Model, DataTypes,Sequelize } = require('sequelize');
+const db = require("../configs/dbConfig").db;
 
-class Shop {
-    async findByEmail (email){
-        const query = "SELECT * FROM shop WHERE email = $1"
-        const {rows} = await config.db.query(query,[email])
-        return rows[0]
-    }   
-    async create(email,name,password)
-    {
-        const query = "INSERT INTO shop (email,name,password) VALUES ($1,$2,$3) RETURNING id"
-        const {rows} = await config.db.query(query,[email,name,password]) //password hashed
-        return rows[0]
-    } 
+const Shop = db.define('shop', 
+{
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement:true,
+        primaryKey: true
+    },
+    name: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        unique: true
+    },
+    email: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        unique: true, 
+        },
+    password: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+    },
+    status: {
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        defaultValue: 'inactive',
+    },
+    verify: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+    roles: {
+        type: DataTypes.ARRAY(DataTypes.TEXT),
+        defaultValue: [],
+    }
+},
+{
+    tableName: 'shop',
+    timestamps: true,
+    updatedAt: 'updated_at',
+    createdAt: 'created_at'
 }
+)
 
-module.exports = new Shop()
+
+module.exports = Shop

@@ -1,48 +1,45 @@
-const config = require("../configs/dbConfig")
+const { DataTypes, Sequelize } = require('sequelize');
+const db = require('../configs/dbConfig').db;
+const Shop = require('./shop.model'); // Assuming you have a Shop model defined
 
-class keyToken {
+const KeyToken = db.define('KeyToken', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        allowNull: false,
+        autoIncrement: true,
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+        model: Shop, // This is a reference to another model
+        key: 'id', // This is the column name of the referenced model
+        },
+    },
+    publickey: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        unique: true
 
-    async create ({userId,publicKey,privateKey}){
-        const query = `
-        INSERT INTO keytoken (user_id, publickey, privatekey)
-        VALUES ($1, $2, $3)
-        RETURNING *;
-        `
-        try {
-            const {rows} = await config.db.query(query,[userId,publicKey, privateKey])
-            return rows[0]
-        } catch (error) {
-            throw (error);
-        }
-    }
+    },
+    refreshtoken: {
+        type: DataTypes.ARRAY(DataTypes.TEXT), 
+        unique: true
 
-    async updateRefreshToken(id, newRefreshTokens) {
-        const query = `
-          UPDATE keytoken
-          SET refreshToken = $2, updated_at = CURRENT_TIMESTAMP
-          WHERE id = $1
-          RETURNING *;
-        `;
-    
-        try {
-          const res = await pool.query(query, [id, newRefreshTokens]);
-          return res.rows[0];
-        } catch (err) {
-          throw new Error(`Error updating KeyToken: ${err.message}`);
-        }
-    }
+    },
+    privatekey: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        unique: true
 
-    async getKeyTokenById (id){
-        const query = `
-        SELECT * FROM keytoken WHERE id = $1
-        `
-        try {
-            const {rows} = config.db.query(query,[id])
-            return rows[0]
-        } catch (error) {
-            throw (error);
-        }
-    }
-}
+    },
+}, 
+{
+    tableName: 'keytoken',
+    timestamps: true, 
+    createdAt: 'created_at', 
+    updatedAt: 'updated_at',
+});
 
-module.exports = new keyToken()
+module.exports = KeyToken;

@@ -8,9 +8,13 @@ const { BadRequestError, ConflictRequestError } = require('../core/error.respons
 
 class AccesService
 {
-    static signUp = async (email,name,password) => {
-        const result = await Shop.findByEmail(email)
 
+    static login = async (email, password, refreshToken = null) => {
+        
+    }
+
+    static signUp = async (email,name,password) => {
+        const result = await Shop.findOne({email})
         if (result)
         {
             throw new BadRequestError("Error: Shop already exists")
@@ -19,8 +23,7 @@ class AccesService
             const rounds = 10;
             password = await bcrypt.hash(password,rounds)
             
-            const newShop = await Shop.create(email,name,password)
-
+            const newShop = await Shop.create({email,name,password})
             if(newShop){
                 //create private key, public key
                 const publicKey = crypto.randomBytes(64).toString('hex')

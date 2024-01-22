@@ -1,20 +1,27 @@
-const config = require("../configs/dbConfig")
+const { DataTypes, Sequelize } = require('sequelize');
+const db = require('../configs/dbConfig').db;
 
-class apiKey {
-    
-        async findOne ({key, status}) {
-            console.log({key, status})
-            const query = "SELECT * FROM apikeys WHERE key = $1 AND status = $2 LIMIT 1"
-            try{
-                const {rows} = await config.db.query(query, [key, status])
-                return rows[0]
-            }
-            catch (error) {
-                throw (error);
-            }
-        }
+const apikey = db.define('apikey', {
+    key: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+        unique: true
+    },
+    status: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    },
+    permissions: {
+        type: DataTypes.ARRAY(DataTypes.TEXT),
+        allowNull: false,
+        enum: ['0000', '1111', '2222'],
+    },
+}, 
+{
+    tableName: 'apikey',
+    timestamps: true, 
+    createdAt: 'created_at', 
+    updatedAt: 'updated_at',
+});
 
-    
-}
-
-module.exports = new apiKey();
+module.exports = apikey;

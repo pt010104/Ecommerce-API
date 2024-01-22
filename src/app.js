@@ -2,17 +2,16 @@ const express = require ("express")
 const { default: helmet } = require("helmet")
 const morgan = require("morgan")
 const compression = require ("compression")
-const bodyParser = require ("body-parser")
 const app = express()
 const router = require ("./routes/index")
-
-
+const db = require("./configs/dbConfig").db
 //init middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(morgan("Combined"))
+app.use(morgan("combined"))
 app.use(helmet())
 app.use(compression())
+
 //init db
 
 //init routes
@@ -26,6 +25,7 @@ app.use((req,res,next) => {
 })
 
 app.use((error,req,res,next) => {
+    
     const statusCode = error.status || 500;
     return res.status(statusCode).json({
         status: 'error',

@@ -1,16 +1,15 @@
 require ("dotenv").config()
-const pg = require ("pg")
+const {Sequelize} = require("sequelize")
 
 const dev = {
     app: {
         port: process.env.DEV_PORT
     },
-    db :  new pg.Client({
-        user: process.env.DEV_DB_USER,
-        password: process.env.DEV_DB_PASSWORD,
+    db : new Sequelize(process.env.DEV_DB_NAME, process.env.DEV_DB_USER,process.env.DEV_DB_PASSWORD, {
         host: process.env.DEV_DB_HOST,
-        database: process.env.DEV_DB_NAME,
-        port: process.env.DEV_DB_PORT
+        dialect: 'postgres',
+        port: process.env.DEV_DB_PORT,
+        logging: false
     })
 }
 
