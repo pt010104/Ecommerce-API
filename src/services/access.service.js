@@ -3,12 +3,50 @@ const bcrypt = require('bcrypt')
 const Shop = require('../models/shop.model')
 const crypto = require("node:crypto")
 const keyTokenService = require("../services/keyToken.service")
-const {createTokenPair} = require("../auth/authUtils")
-const { BadRequestError, ConflictRequestError,AuthFailureError } = require('../core/error.response')
+const {createTokenPair, verifyJWT} = require("../auth/authUtils")
+const { BadRequestError, ForbiddenError ,AuthFailureError } = require('../core/error.response')
 const { findByEmail } = require('./shop.service')
 
 class AccesService
 {
+    static handllerRefreshToken = async (refreshToken) => {
+        const foundToken = await keyTokenService.findByRefreshTokenUsed (refreshToken)
+        if (foundToken){
+            console.log("found Token::",foundToken)
+            //decode to check who is the owner of the token
+            const {userId,email} = await verifyJWT(refreshToken, foundToken.privatekey)
+            console.log(userId,email)
+
+            await keyTokenService.removeKeyByUserId(userId)
+            throw new ForbiddenError ("Something is wrong happend")
+        }
+        console.log("NOt found Token::")
+        const holderToken = await keyTokenService.findByRefreshToken(refreshToken)
+        if(!holderToken)
+        {
+            throw new AuthFailureError ("Shop is not registered")
+        }
+
+        const {userId,email} = await verifyJWT(refreshToken, holderToken.privatekey)
+        console.log(userId,email)
+
+        const tokens = await createTokenPair({userId: holderToken.user_id, email}, holderToken.publickey , holderToken.privatekey)
+
+        holderToken.refreshtokenUsed.push(holderToken.refreshtoken)
+        console.log("RF USED::",  holderToken.refreshtokenUsed)
+        await keyTokenService.createKeyToken({
+            userId: userId,
+            publicKey: holderToken.publickey,
+            privateKey: holderToken.privatekey,
+            refreshToken: tokens.refreshToken,
+            refreshTokenUsed:  holderToken.refreshtokenUsed
+        })
+        return {
+            user: {userId, email},
+            tokens
+        }
+    }
+
     static logout = async (keyStore) => {
         console.log("KeyStore Id::",keyStore.id)
 
@@ -38,7 +76,8 @@ class AccesService
             await keyTokenService.createKeyToken({
                 userId: foundShop.id,
                 privateKey, publicKey,
-                refreshToken: tokens.refreshToken
+                refreshToken: tokens.refreshToken,
+                refreshTokenUsed: []
             })
 
             return {
@@ -73,7 +112,8 @@ class AccesService
                     userId: newShop.id,
                     publicKey,
                     privateKey,
-                    refreshToken
+                    refreshToken,
+                    refreshTokenUsed: []
                 })
 
                 if(!keyStore){
@@ -98,10 +138,10 @@ class AccesService
                 }
             }
             else{
-                return {
-                    code: 2000,
-                    message: "Shop creation failed"
-                }
+                    return {
+                        code: 2000,
+                        message: "Shop creation failed"
+                    }
             }
         }
 

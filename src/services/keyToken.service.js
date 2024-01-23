@@ -1,10 +1,11 @@
 'use strict'
 
 const KeyToken = require("../models/keytoken.model")
+const {Sequelize} = require('sequelize')
 
 class keyTokenService{
 
-    static createKeyToken = async ({userId, publicKey, privateKey, refreshToken}) => {
+    static createKeyToken = async ({userId, publicKey, privateKey, refreshToken, refreshTokenUsed}) => {
         try {
 
             const tokenData = {
@@ -12,7 +13,7 @@ class keyTokenService{
                 publickey: publicKey,
                 privatekey: privateKey,
                 refreshtoken: refreshToken,
-                refreshtokenUsed: [] 
+                refreshtokenUsed: refreshTokenUsed
             };
     
             console.log("Token Data::",tokenData)
@@ -48,6 +49,33 @@ class keyTokenService{
             }
         })
     }
+
+    static removeKeyByUserId = async (UserId) => {
+        return await KeyToken.destroy({
+            where: {
+                user_id : UserId 
+            }
+        })
+    }
+
+
+    static findByRefreshTokenUsed = async (refreshToken) => {
+        return await KeyToken.findOne({
+            where: {
+                refreshtokenUsed: { [Sequelize.Op.contains] : [refreshToken]}
+            }
+        })
+    }
+
+    static findByRefreshToken = async (refreshToken) => {
+        return await KeyToken.findOne({
+            where: {
+                refreshtoken: refreshToken
+            }
+        })
+    }
+    
+
 }
 
 module.exports = keyTokenService

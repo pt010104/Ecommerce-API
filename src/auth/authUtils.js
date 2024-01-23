@@ -28,7 +28,7 @@ const createTokenPair = async (payLoad, publicKey, privateKey) => {
                 console.error(err)
             }
             else{
-                console.log("Decode virified", decoded)
+                console.log("Decode verified", decoded)
             }
         })
 
@@ -80,7 +80,12 @@ const authentication = asyncHandler(async (req,res,next) => {
 
 })
 
+const verifyJWT = async (token, keySecret) => { 
+    return JWT.verify (token, keySecret)
+}
+
 module.exports = {
     createTokenPair,
     authentication,
+    verifyJWT
 }
