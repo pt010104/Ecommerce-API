@@ -4,13 +4,17 @@ const Shop = require('../models/shop.model')
 const crypto = require("node:crypto")
 const keyTokenService = require("../services/keyToken.service")
 const {createTokenPair} = require("../auth/authUtils")
-const { BadRequestError, ConflictRequestError } = require('../core/error.response')
+const { BadRequestError, ConflictRequestError,AuthFailureError } = require('../core/error.response')
 const { findByEmail } = require('./shop.service')
 
 class AccesService
 {
-    static logout = async (email, password,refreshToken = null) => {
+    static logout = async (keyStore) => {
+        console.log("KeyStore Id::",keyStore.id)
 
+        const delKey = await keyTokenService.removeKeyById(keyStore.id)
+        console.log(delKey)
+        return delKey
     }
 
     static login = async (email, password, refreshToken = null) => {

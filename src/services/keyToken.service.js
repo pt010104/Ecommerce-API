@@ -32,6 +32,22 @@ class keyTokenService{
             return error;
         }
     }
+
+    static findByUserId = async (UserId) => {
+        return await KeyToken.findOne({
+            where: {
+                user_id: UserId
+            }
+        })
+    }
+
+    static removeKeyById = async (id) => {
+        return await KeyToken.destroy({
+            where: {
+                id: id
+            }
+        })
+    }
 }
 
 module.exports = keyTokenService

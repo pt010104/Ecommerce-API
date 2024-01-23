@@ -9,6 +9,7 @@ const KeyToken = db.define('keytoken', {
         autoIncrement: true,
     },
     user_id: {
+        unique: true,
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
@@ -42,10 +43,6 @@ const KeyToken = db.define('keytoken', {
     timestamps: true, 
     createdAt: 'created_at', 
     updatedAt: 'updated_at',
-    indexes: [{
-        unique: true,
-        fields: ['user_id', 'publickey', 'privatekey']
-    }]
 });
 
 module.exports = KeyToken;
