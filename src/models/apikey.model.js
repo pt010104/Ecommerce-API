@@ -2,8 +2,13 @@ const { DataTypes, Sequelize } = require('sequelize');
 const db = require('../configs/dbConfig').db;
 
 const apikey = db.define('apikey', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
     key: {
-        type: DataTypes.TEXT,
+        type: DataTypes.TEXT,   
         allowNull: false,
         unique: true
     },

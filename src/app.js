@@ -13,7 +13,7 @@ app.use(helmet())
 app.use(compression())
 
 //init db
-
+db.sync()
 //init routes
 app.use(router)
 

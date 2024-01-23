@@ -2,8 +2,16 @@
 
 const shopModel = require("../models/shop.model")
 
-const findByEmail = async ({email, select = {
-    email: 1, password: 2, name: 1, status: 1, roles: 1
-}}) => {
-    return await shopModel.findByEmail(email)
+const findByEmail = async ({email}) => {
+    return await shopModel.findOne(
+        { 
+            where: 
+            {
+                email: email
+            },
+            attributes: ['id','email','password','name','status','roles']
+        }
+    )
 }
+
+module.exports = {findByEmail}

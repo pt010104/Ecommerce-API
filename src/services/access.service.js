@@ -5,16 +5,51 @@ const crypto = require("node:crypto")
 const keyTokenService = require("../services/keyToken.service")
 const {createTokenPair} = require("../auth/authUtils")
 const { BadRequestError, ConflictRequestError } = require('../core/error.response')
+const { findByEmail } = require('./shop.service')
 
 class AccesService
 {
+    static logout = async (email, password,refreshToken = null) => {
+
+    }
 
     static login = async (email, password, refreshToken = null) => {
-        
+        const foundShop = await findByEmail({email})
+        if (!foundShop) {
+            throw new BadRequestError("Error: Shop not found")
+        }
+        else{
+            const match = bcrypt.compareSync(password, foundShop.password)
+            
+            if(!match)
+            {
+                throw new AuthFailureError("Error: Authentication failed")
+            }
+
+            const publicKey = crypto.randomBytes(64).toString('hex')
+            const privateKey = crypto.randomBytes(64).toString('hex')
+
+            const tokens = await createTokenPair({userId: foundShop.id, email}, publicKey , privateKey)
+
+            await keyTokenService.createKeyToken({
+                userId: foundShop.id,
+                privateKey, publicKey,
+                refreshToken: tokens.refreshToken
+            })
+
+            return {
+                code: 201,
+                metadata: {
+                    shop: foundShop,
+                    tokens
+                }
+            }
+
+        }
     }
 
     static signUp = async (email,name,password) => {
-        const result = await Shop.findOne({email})
+        const result = await Shop.findOne({where:{ email: email}})
         if (result)
         {
             throw new BadRequestError("Error: Shop already exists")
@@ -28,11 +63,13 @@ class AccesService
                 //create private key, public key
                 const publicKey = crypto.randomBytes(64).toString('hex')
                 const privateKey = crypto.randomBytes(64).toString('hex')
+                const refreshToken = crypto.randomBytes(64).toString('hex')
 
                 const keyStore = await keyTokenService.createKeyToken({
                     userId: newShop.id,
                     publicKey,
                     privateKey,
+                    refreshToken
                 })
 
                 if(!keyStore){
