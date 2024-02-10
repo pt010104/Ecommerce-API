@@ -5,6 +5,8 @@ const compression = require ("compression")
 const app = express()
 const router = require ("./routes/index")
 const db = require("./configs/dbConfig").db
+const  {products, clothes, electronics} = require("./models/products.model")
+
 //init middleware
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -13,13 +15,18 @@ app.use(helmet())
 app.use(compression())
 
 //init db
-db.sync()
+db.sync().then(() => {
+    console.log("All models were synchronized successfully.");
+}).catch(error => {
+    console.error('Error syncing models:', error);
+});
+
 //init routes
 app.use(router)
 
 //handling error
 app.use((req,res,next) => {
-    const error = new Error("Not Found")
+    const error = new Error("Not Found The Router")
     error.status = 404
     next(error)
 })

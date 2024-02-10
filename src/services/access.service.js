@@ -20,7 +20,7 @@ class AccesService
             await keyTokenService.removeKeyByUserId(userId)
             throw new ForbiddenError ("Something is wrong happend")
         }
-        console.log("NOt found Token::")
+        console.log("Not found Token::")
         const holderToken = await keyTokenService.findByRefreshToken(refreshToken)
         if(!holderToken)
         {
