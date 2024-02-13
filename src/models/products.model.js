@@ -84,19 +84,18 @@ const products = db.define("products",
         tableName: 'products',
         timestamps: true,
         updatedAt: 'updated_at',
-        createdAt: 'created_at'
+        createdAt: 'created_at',
+        hooks: {
+            beforeSave: function (products) {
+                if (products.product_name) {
+                    products.product_slug = slugify(products.product_name.toString(), { lower: true });
+                }
+                else throw new Error ("Product name is invalid")
+            }
+        
+        }
     }
 )
-
-products.beforeSave ("save",function (next) {
-    console.log(this.product_name)
-    if (this.product_name) {
-        this.product_slug = slugify(this.product_name.toString(), { lower: true });
-    }
-    else throw new Error ("Product name is invalid")
-    next();
-})
-    
 const clothes = db.define("clothes", 
     {   
         id : {
@@ -200,4 +199,6 @@ const furnitures = db.define("furnitures",
         createdAt: 'created_at'
     }
 )
+
+products.belongsTo(Shop, { as: 'shop', foreignKey: 'product_shop' });
 module.exports = {products, clothes, electronics, furnitures}

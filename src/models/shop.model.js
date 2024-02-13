@@ -1,5 +1,6 @@
-const {Model, DataTypes,Sequelize } = require('sequelize');
+const {DataTypes} = require('sequelize');
 const db = require("../configs/dbConfig").db;
+const products = require('./products.model');
 
 const Shop = db.define('shop', 
 {
@@ -44,6 +45,4 @@ const Shop = db.define('shop',
     createdAt: 'created_at'
 }
 )
-
-
 module.exports = Shop

@@ -5,7 +5,6 @@ const {OK,CREATED,SuccessResponse} = require ("../core/success.response")
 
 class ProductController
 {
-
     createProduct = async (req, res, next) =>{
         new SuccessResponse (
             {
@@ -15,6 +14,15 @@ class ProductController
                         product_shop: req.user.userId
                     }
                 )
+            }
+        ).send(res)
+    }
+
+    getAllDraftsForShop = async (req, res, next) => {
+        new SuccessResponse (
+            {
+                message:"Retrieved Drafts Successfully!",
+                metadata: await ProductFactory.findAllDraftForShop({product_shop: req.user.userId})
             }
         ).send(res)
     }

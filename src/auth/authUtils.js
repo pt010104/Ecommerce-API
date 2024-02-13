@@ -80,8 +80,6 @@ const authentication = asyncHandler(async (req,res,next) => {
     try {
         const decodeUser = JWT.verify(accessToken, keyStore.publickey)
 
-        console.log (decodeUser)
-
         if (userId != decodeUser.userId) {
             throw new AuthFailureError("Authentication Failed")  
         }
