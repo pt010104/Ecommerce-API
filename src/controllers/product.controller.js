@@ -44,6 +44,14 @@ class ProductController
             }
         ).send(res)
     }
+    unpublishProductByShop = async (req, res, next) => {
+        new SuccessResponse (
+            {
+                message:"UnPublished Product Successfully!",
+                metadata: await ProductFactory.unpublishProductByShop({product_shop: req.user.userId, id: req.params.id})
+            }
+        ).send(res)
+    }
 }
 
 module.exports = new ProductController()

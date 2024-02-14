@@ -36,7 +36,22 @@ const publishProductByShop = async ({product_shop, id}) => {
     return foundShop
 }
 
+const unpublishProductByShop = async ({product_shop, id}) => {
+
+    const foundShop = await products.findOne({
+        where: {product_shop: product_shop, id: id}
+    })
+    if(!foundShop) throw new BadRequestError("Shop not found")
+
+    foundShop.isDraft = true
+    foundShop.isPublished = false
+
+    await foundShop.save();
+    return foundShop
+}
+
 module.exports = {
     findAllDProductForShop,
-    publishProductByShop
+    publishProductByShop,
+    unpublishProductByShop
 }

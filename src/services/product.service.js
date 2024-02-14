@@ -2,7 +2,7 @@
 
 const {products, clothes, electronics} = require("../models/products.model")
 const {BadRequestError} = require("../core/error.response")
-const {findAllDProductForShop,publishProductByShop} = require("../models/repositories/products.repo")
+const {findAllDProductForShop,publishProductByShop,unpublishProductByShop} = require("../models/repositories/products.repo")
 
 //define Factory
 class ProductFactory {
@@ -29,6 +29,9 @@ class ProductFactory {
 
     static publishProductByShop = async({product_shop, id}) => {
         return publishProductByShop({product_shop, id})
+    }
+    static unpublishProductByShop = async({product_shop, id}) => {
+        return unpublishProductByShop({product_shop, id})
     }
 }
 
