@@ -2,7 +2,7 @@
 
 const {products, clothes, electronics} = require("../models/products.model")
 const {BadRequestError} = require("../core/error.response")
-const {findAllDraftForShop} = require("../models/repositories/products.repo")
+const {findAllDProductForShop,publishProductByShop} = require("../models/repositories/products.repo")
 
 //define Factory
 class ProductFactory {
@@ -20,7 +20,15 @@ class ProductFactory {
 
     static findAllDraftForShop = async({product_shop, limit = 50, skip = 0}) => {
         const query = {product_shop, isDraft: true}
-        return findAllDraftForShop({query, limit, skip})
+        return findAllDProductForShop({query, limit, skip})
+    }
+    static findAllPublishedForShop = async({product_shop, limit = 50, skip = 0}) => {
+        const query = {product_shop, isPublished: true}
+        return findAllDProductForShop({query, limit, skip})
+    }
+
+    static publishProductByShop = async({product_shop, id}) => {
+        return publishProductByShop({product_shop, id})
     }
 }
 
@@ -37,7 +45,7 @@ class Product {
         this.product_attributes = product_attributes;
     }
     async createProduct(idProduct) {
-        return await products.create({...this, id: idProduct})
+        return await products.create({...this, product_id: idProduct})
     }
     
 }
