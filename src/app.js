@@ -16,9 +16,9 @@ app.use(compression())
 
 //init db
 db.sync().then(() => {
-    console.log("All models were synchronized successfully.");
-}).catch(error => {
-    console.error('Error syncing models:', error);
+    console.log("Successfully creating Table");
+}).catch((error) => {
+    console.error("Error syncing database:", error);
 });
 
 //init routes

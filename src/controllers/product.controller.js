@@ -44,11 +44,21 @@ class ProductController
             }
         ).send(res)
     }
+
     unpublishProductByShop = async (req, res, next) => {
         new SuccessResponse (
             {
                 message:"UnPublished Product Successfully!",
                 metadata: await ProductFactory.unpublishProductByShop({product_shop: req.user.userId, id: req.params.id})
+            }
+        ).send(res)
+    }
+
+    getProductByUser = async (req, res, next) => {
+        new SuccessResponse (
+            {
+                message:"Retrieved Products Successfully!",
+                metadata: await ProductFactory.searchProductByUser({keySearch: req.params.keySearch})
             }
         ).send(res)
     }

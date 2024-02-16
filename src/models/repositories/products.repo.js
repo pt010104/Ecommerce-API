@@ -1,8 +1,9 @@
 'use strict'
 
-const { where } = require("sequelize");
+const {Sequelize } = require("sequelize");
 const {products, electronics, clothes} = require ("../products.model")
 const Shop = require('../shop.model'); 
+const {BadRequestError} = require("../../core/error.response")
 
 const findAllDProductForShop = async ({query, limit, skip}) => {
 
@@ -20,6 +21,27 @@ const findAllDProductForShop = async ({query, limit, skip}) => {
     })
     return result
 
+}
+
+const searchProductByUser = async ({keySearch}) => {
+    const result = await products.findAll ({
+        where: {
+            [Sequelize.Op.and]: [
+                Sequelize.literal(`to_tsvector(product_name || ' ' || product_description) @@ plainto_tsquery('english', '${keySearch}')`),
+                {isPublished: true}
+            ]
+        },
+        attributes: {
+            include: [
+                [Sequelize.literal(`ts_rank_cd(to_tsvector(product_name || ' ' || product_description), plainto_tsquery('english', '${keySearch}'))`), 'textScore']
+            ]
+        },
+        order: Sequelize.literal(`"textScore" DESC`),
+
+    })
+
+    if(result.length == 0) throw new BadRequestError("Product not found");
+    return result
 }
 
 const publishProductByShop = async ({product_shop, id}) => {
@@ -53,5 +75,6 @@ const unpublishProductByShop = async ({product_shop, id}) => {
 module.exports = {
     findAllDProductForShop,
     publishProductByShop,
-    unpublishProductByShop
+    unpublishProductByShop,
+    searchProductByUser
 }

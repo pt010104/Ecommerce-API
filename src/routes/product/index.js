@@ -6,7 +6,7 @@ const router = express.Router()
 const {asyncHandler} = require("../../helpers/asyncHandler")
 const { authentication } = require("../../auth/authUtils")
 
-
+router.get ('/search/:keySearch', asyncHandler(ProductController.getProductByUser))
 //authetication
 router.use(authentication)
 //////////////////////////
