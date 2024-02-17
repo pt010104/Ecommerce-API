@@ -10,14 +10,13 @@ const findAllDProductForShop = async ({query, limit, skip}) => {
     const result = await products.findAll ({
         where: query,
         include: [{
-            model: Shop ,
+            model: Shop,
             as: 'shop',
             attributes: ['name', 'email', 'id']
         }],
         order: [['updated_at',"DESC"]],
         offset: skip,
         limit: limit,
-        raw: true
     })
     return result
 
@@ -59,7 +58,6 @@ const publishProductByShop = async ({product_shop, id}) => {
 }
 
 const unpublishProductByShop = async ({product_shop, id}) => {
-
     const foundShop = await products.findOne({
         where: {product_shop: product_shop, id: id}
     })
@@ -72,9 +70,24 @@ const unpublishProductByShop = async ({product_shop, id}) => {
     return foundShop
 }
 
+const findAllProducts = async ({limit, sort, page, select}) => {
+    const skip = (page - 1) * limit
+    const sortBy = sort === "ctime"? ['id', "DESC"]: ["id", "ASC"]
+    console.log(limit)
+    const result = await products.findAll({
+        where: {isPublished: true},
+        attributes: select,
+        offset: skip,
+        limit: limit,
+        order:[['id',"DESC"]],
+    })
+    return result
+}
+
 module.exports = {
     findAllDProductForShop,
     publishProductByShop,
     unpublishProductByShop,
-    searchProductByUser
+    searchProductByUser,
+    findAllProducts
 }

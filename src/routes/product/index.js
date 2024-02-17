@@ -7,6 +7,7 @@ const {asyncHandler} = require("../../helpers/asyncHandler")
 const { authentication } = require("../../auth/authUtils")
 
 router.get ('/search/:keySearch', asyncHandler(ProductController.getProductByUser))
+router.get ("/sortBy=:sort", asyncHandler(ProductController.getAllProducts))
 //authetication
 router.use(authentication)
 //////////////////////////

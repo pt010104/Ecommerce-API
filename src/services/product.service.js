@@ -2,7 +2,7 @@
 
 const {products, clothes, electronics} = require("../models/products.model")
 const {BadRequestError} = require("../core/error.response")
-const {findAllDProductForShop,publishProductByShop,unpublishProductByShop,searchProductByUser} = require("../models/repositories/products.repo")
+const {findAllDProductForShop,publishProductByShop,unpublishProductByShop,searchProductByUser,findAllProducts} = require("../models/repositories/products.repo")
 
 //define Factory
 class ProductFactory {
@@ -38,6 +38,12 @@ class ProductFactory {
 
     static searchProductByUser = async({keySearch}) => {
         return searchProductByUser({keySearch})
+    }
+
+    static findAllProducts = async({limit = 2, sort, page = 1, select}) => {
+        return findAllProducts({limit, sort, page, 
+            select: ["product_name", "product_thumb", "product_price"]
+        })
     }
 }
 

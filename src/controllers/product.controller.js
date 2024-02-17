@@ -62,6 +62,15 @@ class ProductController
             }
         ).send(res)
     }
+
+    getAllProducts = async (req, res, next) => {
+        new SuccessResponse (
+            {
+                message:"Retrieved Products Successfully!",
+                metadata: await ProductFactory.findAllProducts({ sort: req.params.sort})
+            }
+        ).send(res)
+    }
 }
 
 module.exports = new ProductController()
