@@ -84,10 +84,36 @@ const findAllProducts = async ({limit, sort, page, select}) => {
     return result
 }
 
+const findProduct = async ({id,unselect}) => {
+    console.log(id)
+    const result = await products.findOne({
+        where: {id: id},
+        attributes: {
+            exclude: unselect || []
+        }
+    })  
+    return result
+}
+
+const updateProduct = async ({id, payload, model, isReturn = true}) => {
+    console.log("id, payload, model, isReturn", id, payload, model, isReturn)
+    const product = await model.findByPk(id);
+
+    product.product_attributes = {
+        ...product.product_attributes,
+        ...payload.product_attributes   
+    }
+
+    const rows = await product.save({ returning: isReturn });
+    return rows;
+}
+
 module.exports = {
     findAllDProductForShop,
     publishProductByShop,
     unpublishProductByShop,
     searchProductByUser,
-    findAllProducts
+    findAllProducts,
+    findProduct,
+    updateProduct
 }

@@ -2,7 +2,8 @@
 
 const {products, clothes, electronics} = require("../models/products.model")
 const {BadRequestError} = require("../core/error.response")
-const {findAllDProductForShop,publishProductByShop,unpublishProductByShop,searchProductByUser,findAllProducts} = require("../models/repositories/products.repo")
+const {findAllDProductForShop,publishProductByShop,unpublishProductByShop,searchProductByUser,findAllProducts, findProduct, updateProduct} = require("../models/repositories/products.repo")
+const {removeUndefined, updateNestedObjectParser} = require("../utils/index")
 
 //define Factory
 class ProductFactory {
@@ -13,6 +14,19 @@ class ProductFactory {
                 return new Electronic(payload).createProduct()
             case "Clothing":
                 return new Clothing(payload).createProduct()
+            default:    
+                throw new BadRequestError("Invalid product type")
+        }
+    }
+
+    static updateProduct = async(type, id, payload) => {
+        switch(type) {
+            case "products":
+                return new Product(payload).updateProduct(id)
+            case "Electronic":
+                return new Electronic(payload).updateProduct(id)
+            case "Clothing":
+                return new Clothing(payload).updateProduct(id)
             default:
                 throw new BadRequestError("Invalid product type")
         }
@@ -45,6 +59,12 @@ class ProductFactory {
             select: ["product_name", "product_thumb", "product_price"]
         })
     }
+
+    static findProduct = async({id,unselect}) => {
+        return findProduct ({id, 
+            unselect: ["product_variations", "isDraft", "isPublished"]
+        })
+    }
 }
 
 class Product {
@@ -62,6 +82,9 @@ class Product {
     async createProduct(idProduct) {
         return await products.create({...this, product_id: idProduct})
     }
+    async updateProduct(id, payload){
+        return await updateProduct({id, payload, model: products})
+    }
     
 }
 
@@ -77,6 +100,18 @@ class Clothing extends Product {
         if (!newProduct) throw new BadRequestError(("Product cannot created"))
 
         return newProduct
+    }
+
+    async updateProduct(id){
+        const payload = removeUndefined(this)
+        if(payload.product_attributes)
+        {
+            const product = await products.findOne({ where: {id: id }, attributes: ["product_id"] });
+            const product_id = product ? product.product_id : null;
+            console.log("payload::",payload)
+            updateProduct({id: product_id, payload: payload.product_attributes, model: clothes})
+        }
+        super.updateProduct (id, payload)
     }
 
 }

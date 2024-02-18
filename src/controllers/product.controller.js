@@ -71,6 +71,26 @@ class ProductController
             }
         ).send(res)
     }
+
+    getProduct = async (req, res, next) => {
+        new SuccessResponse (
+            {
+                message:"Retrieved Products Successfully!",
+                metadata: await ProductFactory.findProduct({id: req.params.id})
+            }
+        ).send(res)
+    }
+
+    updateProduct = async (req, res, next) => {
+        new SuccessResponse (
+            {
+                message:"Updated Product Successfully!",
+                metadata: await ProductFactory.updateProduct(req.body.product_type, req.params.id, 
+                    {...req.body, product_shop: req.user.userId}
+                )
+            }
+        ).send(res)
+    }
 }
 
 module.exports = new ProductController()
