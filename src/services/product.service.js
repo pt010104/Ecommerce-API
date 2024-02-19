@@ -4,6 +4,8 @@ const {products, clothes, electronics} = require("../models/products.model")
 const {BadRequestError} = require("../core/error.response")
 const {findAllDProductForShop,publishProductByShop,unpublishProductByShop,searchProductByUser,findAllProducts, findProduct, updateProduct} = require("../models/repositories/products.repo")
 const {removeUndefined, updateNestedObjectParser} = require("../utils/index")
+const {insertInventory} = require("../models/repositories/inventory.repo")
+
 
 //define Factory
 class ProductFactory {
@@ -80,7 +82,17 @@ class Product {
         this.product_attributes = product_attributes;
     }
     async createProduct(idProduct) {
-        return await products.create({...this, product_id: idProduct})
+        const product = await products.create({...this, product_id: idProduct})
+        
+        if (product){
+            insertInventory({
+                id: product.id,
+                stock: this.product_quantity,
+                shopId: this.product_shop
+            })
+            console.log("Insert Inventory Success") 
+        }
+        return product 
     }
     async updateProduct(id, payload){
         return await updateProduct({id, payload, model: products})
