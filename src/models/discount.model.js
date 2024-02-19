@@ -1,0 +1,90 @@
+const {DataTypes} = require ("sequelize")
+const db = require ("../configs/dbConfig").db
+const Shop = require('./shop.model'); 
+
+const discount = db.define("discounts", 
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true,
+        },    
+        discount_name: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        discount_description: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        discount_type: {
+            type: DataTypes.STRING,
+            defaultValue: 'fixed_amount'
+        },
+        discount_value: {
+            type: DataTypes.DECIMAL,
+            allowNull: false
+        },
+        discount_code: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        discount_start_date: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        discount_end_date: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        discount_max_uses: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        discount_uses_count: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        discount_users_used: {
+            type: DataTypes.ARRAY(DataTypes.INTEGER), // Adjust the inner type if needed
+            defaultValue: []
+        },
+        discount_max_uses_per_user: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        discount_min_order_value: {
+            type: DataTypes.DECIMAL,
+            allowNull: false
+        },
+        discount_shopId: {
+            type: DataTypes.INTEGER, // Assuming the Shop model's primary key is of type INTEGER
+            references: {
+                model: 'Shop', // This should match the table name of `Shop`
+                key: 'id'
+            }
+        },
+        discount_is_active: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: true
+        },
+        discount_applies_to: {
+            type: DataTypes.ENUM('all', 'specific'),
+            allowNull: false
+        },
+        discount_product_ids: {
+            type: DataTypes.ARRAY(DataTypes.INTEGER), // Adjust the inner type if needed
+            defaultValue: []
+        }
+    },
+    { 
+        tableName: 'discounts',
+        timestamps: true,
+        updatedAt: 'updated_at',
+        createdAt: 'created_at'
+    }
+)
+
+inventory.belongsTo(Shop, { as: 'shop', foreignKey: 'inven_shopId' });
+module.exports = {inventory}
