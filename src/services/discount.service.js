@@ -122,6 +122,44 @@ class DiscountService {
         return discounts
     }
 
+    static getDiscountAmount = async ({code, userId, products}) => {
+        const foundDiscount = discount.findOne({
+            where: {
+                discount_code: code,
+                discount_is_active: true
+            }
+        })
+        if(!foundDiscount) {
+            throw new BadRequestError("The code is invalid")
+        }
+
+        if(!foundDiscount.is_active)
+            throw new BadRequestError("The code is expired")
+        if (foundDiscount.max_uses <= foundDiscount.uses_count)
+            throw new BadRequestError("The code is out of uses")
+        if (new Date() <= new Date(foundDiscount.start_date) || new Date() >= new Date(foundDiscount.end_date))
+            throw new BadRequestError("The code is expired")
+
+        let totalOrder = 0
+        if (foundDiscount.min_order_value > 0)
+        {       
+            products.forEach(product => {
+                totalOrder += product.price * product.quantity  
+            })
+            if(totalOrder < foundDiscount.min_order_value)
+                throw new BadRequestError("Discount requires a minimum order value of " + foundDiscount.min_order_value)
+        }
+
+        const amount = foundDiscount.discount_type === "fixed_amount" ? foundDiscount.discount_value : totalOrder * foundDiscount.discount_value / 100
+
+        return {
+            totalOrder,
+            amount: amount,
+            totalPrice: totalOrder - amount
+        }
+
+    }
+
 
 
 }
