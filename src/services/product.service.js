@@ -56,9 +56,10 @@ class ProductFactory {
         return searchProductByUser({keySearch})
     }
 
-    static findAllProducts = async({limit = 2, sort, page = 1, select}) => {
+    static findAllProducts = async({limit = 100, sort, page = 1, filter, select}) => {
         return findAllProducts({limit, sort, page, 
-            select: ["product_name", "product_thumb", "product_price"]
+            select: ["product_name", "product_thumb", "product_price"],
+            filter: {isPublished: true}
         })
     }
 

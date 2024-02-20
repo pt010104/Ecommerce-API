@@ -70,12 +70,12 @@ const unpublishProductByShop = async ({product_shop, id}) => {
     return foundShop
 }
 
-const findAllProducts = async ({limit, sort, page, select}) => {
+const findAllProducts = async ({limit, sort, page, filter, select}) => {
     const skip = (page - 1) * limit
     const sortBy = sort === "ctime"? ['id', "DESC"]: ["id", "ASC"]
     console.log(limit)
     const result = await products.findAll({
-        where: {isPublished: true},
+        where: filter,
         attributes: select,
         offset: skip,
         limit: limit,

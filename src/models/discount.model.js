@@ -58,10 +58,14 @@ const discount = db.define("discounts",
             type: DataTypes.DECIMAL,
             allowNull: false
         },
+        discount_min_order_value: {
+            type: DataTypes.DECIMAL,
+            allowNull: false
+        },
         discount_shopId: {
-            type: DataTypes.INTEGER, // Assuming the Shop model's primary key is of type INTEGER
+            type: DataTypes.INTEGER, 
             references: {
-                model: 'Shop', // This should match the table name of `Shop`
+                model: Shop, 
                 key: 'id'
             }
         },
@@ -74,7 +78,7 @@ const discount = db.define("discounts",
             allowNull: false
         },
         discount_product_ids: {
-            type: DataTypes.ARRAY(DataTypes.INTEGER), // Adjust the inner type if needed
+            type: DataTypes.ARRAY(DataTypes.INTEGER), 
             defaultValue: []
         }
     },
@@ -86,5 +90,5 @@ const discount = db.define("discounts",
     }
 )
 
-inventory.belongsTo(Shop, { as: 'shop', foreignKey: 'inven_shopId' });
-module.exports = {inventory}
+discount.belongsTo(Shop, { as: 'shop', foreignKey: 'discount_shopId' });
+module.exports = {discount}
