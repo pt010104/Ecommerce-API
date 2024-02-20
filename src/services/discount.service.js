@@ -160,7 +160,41 @@ class DiscountService {
 
     }
 
+    static deleteDiscount = async(code, shopId) => {
+        const result = discount.destroy({
+            where: {
+                discount_code: code,
+                discount_shopId: shopId
+            }
+        })
+        return result
+    }
 
+    static cancelDiscount = async (code, shopId, userId) => {
+        const foundDiscount = await discount.findOne({
+            where: {
+                discount_code: code,
+                discount_shopId: shopId,
+                discount_is_active: true
+            }
+        })  
+        if (!foundDiscount){
+            throw new BadRequestError("The code is invalid")
+        }
+
+        if (!foundDiscount.discount_users_used.includes(userId)){
+            throw new BadRequestError("This user has not used the code yet")
+        }
+
+        const result = await foundDiscount.update({
+            discount_users_used: discount_users_used.filter(id => id !== userId),
+            discount_uses_count: discount_uses_count - 1
+        })
+
+        return result
+
+
+    }
 
 }
 
