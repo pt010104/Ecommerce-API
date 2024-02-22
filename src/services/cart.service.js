@@ -50,6 +50,8 @@ class CartService {
         {
             cartList.cart_products.push(newProduct)
             cartList.cart_count_products += 1
+
+            cartList.changed('cart_products', true);
             return await cartList.save()
         }
         
@@ -95,16 +97,22 @@ class CartService {
     }
 
     static deleteFromCart = async({userId, productId}) => {
-        return await cart.destroy({
+        const cartList = await cart.findOne({
             where: {
                 cart_userId: userId,
-                cart_state: 'active',
-                cart_products: {
-                    productId: productId
-                }
+                cart_state: 'active'
             }
+        
         })
-
+        const cartProducts = cartList.cart_products
+        const productIndex = cartProducts.findIndex((item) => item.productId == productId)
+        if(productIndex < 0)
+            throw new BadRequestError("Product not found in cart")
+        cartList.cart_count_products -= cartList.cart_products[productIndex].quantity
+        const result = cartList.cart_products.splice(productIndex, 1)
+       
+        cartList.changed('cart_products', true);
+        return await cartList.save()
     }
 
     static getListCart = async({userId}) => {
