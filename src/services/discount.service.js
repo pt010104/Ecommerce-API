@@ -6,48 +6,55 @@ const { findAllProducts } = require("../models/repositories/products.repo")
 class DiscountService {
 
     static createDiscount = async(payload) => {
-        const {name, description, type, value, code, start_date, 
-            end_date, max_uses, uses_count, users_used, max_uses_per_user, 
-            min_order_value, shopId, max_value, is_active, applies_to, product_ids} = payload
+        const { discount_name, discount_description, discount_type, discount_value, discount_code, discount_start_date, 
+            discount_end_date, discount_max_uses, discount_uses_count, discount_users_used, discount_max_uses_per_user, 
+            discount_min_order_value, discount_shopId, discount_max_value, discount_is_active, discount_applies_to, discount_product_ids } = payload;
 
-        if (new Date() < new Date(start_date) || new Date() > new Date(end_date)) {
+
+        if (new Date() < new Date(discount_start_date) || new Date() > new Date(discount_end_date)) {
             throw new BadRequestError("The code has expired")
         }
-        if (new Date(start_date) >= new Date(end_date)) {
+        if (new Date(discount_start_date) >= new Date(discount_end_date)) {
             throw new BadRequestError("The start date must be before the end date")
         }
-
-        const foundDiscount = discount.findOne({
+        
+        const foundDiscount = await discount.findOne({
             where: {
-                discount_code: code,
-                discount_shopId: shopId,
+                discount_code: discount_code,   
+                discount_shopId: discount_shopId,
                 discount_is_active: true
             }
         })
-
         if(foundDiscount) {
             throw new BadRequestError("The code has been used")
         }
-
-        const newDiscount = discount.create({
-            discount_name: name,
-            discount_description: description,
-            discount_type: type,
-            discount_value: value,
-            discount_code: code,
-            discount_start_date: new Date (start_date),
-            discount_end_date: new Date (end_date),
-            discount_max_uses: max_uses,
-            discount_uses_count: uses_count,
-            discount_users_used: users_used,
-            discount_max_uses_per_user: max_uses_per_user,
-            discount_min_order_value: min_order_value || 1,
-            discount_shopId: shopId,
-            discount_max_value: max_value,
-            discount_is_active: is_active,
-            discount_applies_to: applies_to 
+        const newDiscount = await discount.create({
+            discount_name: discount_name,
+            discount_description: discount_description,
+            discount_type: discount_type,
+            discount_value: discount_value,
+            discount_code: discount_code,
+            discount_start_date: discount_start_date,
+            discount_end_date: discount_end_date,
+            discount_max_uses: discount_max_uses,
+            discount_uses_count: discount_uses_count,
+            discount_users_used: discount_users_used,
+            discount_max_uses_per_user: discount_max_uses_per_user,
+            discount_min_order_value: discount_min_order_value,
+            discount_shopId: discount_shopId,
+            discount_max_value: discount_max_value,
+            discount_is_active: discount_is_active,
+            discount_applies_to: discount_applies_to,
+            discount_product_ids: discount_product_ids
         })
 
+        if (discount_applies_to === "specific" && discount_product_ids.length === 0){
+            throw new BadRequestError("Please specify the products the discount applies to")
+        }
+
+        if(discount_applies_to === "specific") {
+            discount.discount_product_ids = discount_product_ids
+        }
         return newDiscount
     }
 
@@ -58,7 +65,7 @@ class DiscountService {
     static getAllProductsOfDiscount = async(payload) => {
 
         const {code, shopId} = payload
-        const foundDiscount = discount.findOne({
+        const foundDiscount = await discount.findOne({
             where: {
                 discount_code: code,
                 discount_shopId: shopId,
@@ -68,7 +75,6 @@ class DiscountService {
         if(!foundDiscount) {
             throw new BadRequestError("The code is invalid")
         }
-
         const {discount_applies_to, discount_product_ids} = foundDiscount
         let products
 
@@ -104,7 +110,7 @@ class DiscountService {
 
     static getALlDiscountOfShop = async({limit = 50, page = 1, shopId }) => {
         const skip = (page - 1) * limit
-        const discounts = discount.findAll({
+        const discounts = await discount.findAll({
             where: {
                 discount_shopId: shopId
             },
@@ -122,32 +128,43 @@ class DiscountService {
         return discounts
     }
 
-    static getDiscountAmount = async ({code, userId, products}) => {
-        const foundDiscount = discount.findOne({
+    static getDiscountAmount = async ({code, shopId, userId, products}) => {
+        const foundDiscount = await discount.findOne({
             where: {
                 discount_code: code,
-                discount_is_active: true
+                discount_is_active: true,
+                discount_shopId: shopId
             }
         })
+        console.log("Found Discount::", foundDiscount)
         if(!foundDiscount) {
             throw new BadRequestError("The code is invalid")
         }
 
-        if(!foundDiscount.is_active)
+        if(!foundDiscount.discount_is_active)
             throw new BadRequestError("The code is expired")
-        if (foundDiscount.max_uses <= foundDiscount.uses_count)
+        if (foundDiscount.max_uses <= foundDiscount.discount_uses_count)
             throw new BadRequestError("The code is out of uses")
-        if (new Date() <= new Date(foundDiscount.start_date) || new Date() >= new Date(foundDiscount.end_date))
+        if (new Date() <= new Date(foundDiscount.discount_start_date) || new Date() >= new Date(foundDiscount.end_date))
             throw new BadRequestError("The code is expired")
 
         let totalOrder = 0
-        if (foundDiscount.min_order_value > 0)
+        if (foundDiscount.discount_min_order_value > 0)
         {       
             products.forEach(product => {
+                if (foundDiscount.discount_applies_to === "specific" && !foundDiscount.discount_product_ids.includes(product.id))
+                    throw new BadRequestError("The code does not apply to this product")
                 totalOrder += product.price * product.quantity  
             })
-            if(totalOrder < foundDiscount.min_order_value)
-                throw new BadRequestError("Discount requires a minimum order value of " + foundDiscount.min_order_value)
+            if(totalOrder < foundDiscount.discount_min_order_value)  
+                throw new BadRequestError("Discount requires a minimum order value of " + foundDiscount.discount_min_order_value)
+
+            foundDiscount.discount_users_used.push(userId)
+            console.log("User Id::",foundDiscount.discount_users_used)
+            foundDiscount.discount_uses_count += 1
+            foundDiscount.save({
+                fields: ["discount_users_used", "discount_uses_count"]
+            })
         }
 
         const amount = foundDiscount.discount_type === "fixed_amount" ? foundDiscount.discount_value : totalOrder * foundDiscount.discount_value / 100
@@ -160,8 +177,9 @@ class DiscountService {
 
     }
 
-    static deleteDiscount = async(code, shopId) => {
-        const result = discount.destroy({
+    static deleteDiscount = async({code, shopId}) => {
+        console.log("Code::", code)
+        const result = await discount.destroy({
             where: {
                 discount_code: code,
                 discount_shopId: shopId
@@ -170,7 +188,7 @@ class DiscountService {
         return result
     }
 
-    static cancelDiscount = async (code, shopId, userId) => {
+    static cancelDiscount = async ({code, shopId, userId}) => {
         const foundDiscount = await discount.findOne({
             where: {
                 discount_code: code,
@@ -185,7 +203,7 @@ class DiscountService {
         if (!foundDiscount.discount_users_used.includes(userId)){
             throw new BadRequestError("This user has not used the code yet")
         }
-
+        
         const result = await foundDiscount.update({
             discount_users_used: discount_users_used.filter(id => id !== userId),
             discount_uses_count: discount_uses_count - 1

@@ -47,7 +47,7 @@ const discount = db.define("discounts",
             allowNull: false
         },
         discount_users_used: {
-            type: DataTypes.ARRAY(DataTypes.INTEGER), // Adjust the inner type if needed
+            type: DataTypes.ARRAY(DataTypes.INTEGER), 
             defaultValue: []
         },
         discount_max_uses_per_user: {
