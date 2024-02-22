@@ -1,5 +1,12 @@
 "use strict"
 
+const objectToArray = (obj) => {
+    const result = []
+    Object.keys(obj).forEach(k => {
+        result.push(obj[k])
+    })
+
+}
 const removeUndefined = (obj) => {
     Object.keys(obj).forEach(k =>{
         if (obj[k] === null || obj[k] === undefined) {
@@ -26,4 +33,4 @@ const updateNestedObjectParser = (obj) => {
     return result
 }
 
-module.exports = {removeUndefined, updateNestedObjectParser}
+module.exports = {removeUndefined, updateNestedObjectParser, objectToArray}

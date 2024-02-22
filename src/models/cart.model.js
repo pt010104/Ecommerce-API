@@ -15,6 +15,7 @@ const cart = db.define("carts", {
     },
     cart_products: {
         type: DataTypes.ARRAY(DataTypes.JSONB),
+        defaultValue: [],
         allowNull: false
     },
     /*
@@ -28,9 +29,9 @@ const cart = db.define("carts", {
         }
     ]
     */ 
-   cart_count_product: {
-         type: DataTypes.INTEGER,
-         allowNull: false
+   cart_count_products: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
     },
     cart_userId: {
         type: DataTypes.INTEGER,
