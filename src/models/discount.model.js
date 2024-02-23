@@ -23,7 +23,7 @@ const discount = db.define("discounts",
             defaultValue: 'fixed_amount'
         },
         discount_value: {
-            type: DataTypes.DECIMAL,
+            type: DataTypes.DECIMAL(10,1),
             allowNull: false
         },
         discount_code: {

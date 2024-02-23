@@ -128,7 +128,7 @@ class DiscountService {
         return discounts
     }
 
-    static getDiscountAmount = async ({code, shopId, userId, products}) => {
+    static getDiscountAmount = async ({code, shopId, userId, products = []}) => {
         const foundDiscount = await discount.findOne({
             where: {
                 discount_code: code,
@@ -149,13 +149,15 @@ class DiscountService {
             throw new BadRequestError("The code is expired")
 
         let totalOrder = 0
+        
         if (foundDiscount.discount_min_order_value > 0)
         {       
             products.forEach(product => {
-                if (foundDiscount.discount_applies_to === "specific" && !foundDiscount.discount_product_ids.includes(product.id))
-                    throw new BadRequestError("The code does not apply to this product")
+                if (foundDiscount.discount_applies_to === "specific" && !foundDiscount.discount_product_ids.includes(product.productId))
+                    throw new BadRequestError(`The code does not apply to product_id:: ${product.id}`)
                 totalOrder += product.price * product.quantity  
             })
+            console.log ("totalOrder::", totalOrder)
             if(totalOrder < foundDiscount.discount_min_order_value)  
                 throw new BadRequestError("Discount requires a minimum order value of " + foundDiscount.discount_min_order_value)
 
@@ -167,11 +169,11 @@ class DiscountService {
             })
         }
 
-        const amount = foundDiscount.discount_type === "fixed_amount" ? foundDiscount.discount_value : totalOrder * foundDiscount.discount_value / 100
-
+        let amount = foundDiscount.discount_type === "fixed_amount" ? foundDiscount.discount_value : totalOrder * foundDiscount.discount_value / 100
+        amount = parseFloat(amount)
         return {
             totalOrder,
-            amount: amount,
+            amount: amount, //discount amount
             totalPrice: totalOrder - amount
         }
 

@@ -68,6 +68,21 @@ class ProductFactory {
             unselect: ["product_variations", "isDraft", "isPublished"]
         })
     }
+
+    static checkProductByServer = async(itemProducts) => {
+        return await Promise.all(itemProducts.map(async (item) => {
+            const foundProduct = await findProduct({id: item.productId})
+            if(!foundProduct) throw new BadRequestError("Product not found")
+            return {
+                quantity: foundProduct.product_quantity,
+                price: foundProduct.product_price,
+                productId: foundProduct.id,
+                name: foundProduct.product_name
+
+            }
+        }))
+
+    }
 }
 
 class Product {
