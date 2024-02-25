@@ -3,7 +3,9 @@ const {BadRequestError} = require("../core/error.response")
 const CartService = require("./cart.service")
 const { getDiscountAmount } = require("./discount.service")
 const { ProductFactory } = require("./product.service")
-
+const { acquireLock, releaseLock } = require("./redis.service")
+const order = require ("../models/order.model")
+const { addStockToInventory } = require("./inventory.service")
 class CheckoutService {
     /**
      cartId:,
@@ -68,10 +70,42 @@ class CheckoutService {
             }
 
         }
-
+        const shop_order_ids_new = shop_order_ids
         return {
-            shop_order_ids,
+            shop_order_ids_new,
             checkoutOrder
+        }
+    }
+
+    static orderByUser = async ({cartId, userId, shop_order_ids, user_address = {}, user_payment = {}}) => {
+        const {shop_order_ids_new, checkoutOrder} = await this.checkoutReview({cartId, userId, shop_order_ids})
+        let products = []
+        shop_order_ids_new.forEach((item) => {
+            products = item.item_products
+        })
+
+        for (let i = 0; i < products.length; i++) {
+            const {productId, quantity} = products[i]
+            const keyLock = await acquireLock({productId, cartId, quantity})
+
+            if(!keyLock)
+                throw new BadRequestError("There are products has been updated, Check your cart again")
+            else 
+                await releaseLock(keyLock)
+        }
+
+        const newOrder = await order.create({
+            order_userId: userId,
+            order_checkout: checkoutOrder,
+            order_shipping: user_address,
+            order_payment: user_payment,
+            order_products: shop_order_ids_new
+        })
+
+        //if insert successfully, Remove the products in user cart
+        if(newOrder)
+        {
+            
         }
     }
 }
