@@ -4,7 +4,7 @@ const morgan = require("morgan")
 const compression = require ("compression")
 const app = express()
 const router = require ("./routes/index")
-const db = require("./configs/dbConfig").db
+const db = require("./configs/db.config").db
 const  {products, clothes, electronics} = require("./models/products.model")
 
 //init middleware
@@ -13,6 +13,13 @@ app.use(express.urlencoded({ extended: true }))
 app.use(morgan("combined"))
 app.use(helmet())
 app.use(compression())
+//init redis
+require('./configs/redis.config')
+
+//test pub/sub Redis
+const productTest = require("./tests/product.test")
+productTest.purchaseProduct("product:001", 5)
+require("./tests/inventory.test")
 
 //init db
 db.sync().then(() => {

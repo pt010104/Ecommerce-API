@@ -1,5 +1,5 @@
 "use strict"
-const db = require ("../configs/dbConfig").db
+const db = require ("../configs/db.config").db
 const {DataTypes} = require ("sequelize")
 
 const order = db.define("orders", 

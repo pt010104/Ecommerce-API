@@ -1,5 +1,5 @@
 const { DataTypes, Sequelize } = require('sequelize');
-const db = require('../configs/dbConfig').db;
+const db = require('../configs/db.config').db;
 const Shop = require('./shop.model'); 
 
 const KeyToken = db.define('keytoken', {

@@ -3,7 +3,7 @@ const {BadRequestError} = require("../core/error.response")
 const CartService = require("./cart.service")
 const { getDiscountAmount } = require("./discount.service")
 const { ProductFactory } = require("./product.service")
-const { acquireLock, releaseLock } = require("./redis.service")
+const RedisService = require("./redis.service")
 const order = require ("../models/order.model")
 const { addStockToInventory } = require("./inventory.service")
 class CheckoutService {
@@ -86,12 +86,12 @@ class CheckoutService {
 
         for (let i = 0; i < products.length; i++) {
             const {productId, quantity} = products[i]
-            const keyLock = await acquireLock({productId, cartId, quantity})
+            const keyLock = await RedisService.acquireLock({productId, cartId, quantity})
 
             if(!keyLock)
                 throw new BadRequestError("There are products has been updated, Check your cart again")
             else 
-                await releaseLock(keyLock)
+                await RedisService.releaseLock(keyLock)
         }
 
         const newOrder = await order.create({

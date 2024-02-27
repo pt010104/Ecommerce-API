@@ -1,5 +1,5 @@
 const {DataTypes, DATE} = require ("sequelize")
-const db = require ("../configs/dbConfig").db
+const db = require ("../configs/db.config").db
 const Shop = require('./shop.model'); 
 const slugify = require('slugify');
 
