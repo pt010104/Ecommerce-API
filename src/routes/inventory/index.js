@@ -10,6 +10,7 @@ const { authentication } = require("../../auth/authUtils")
 router.use(authentication)
 //////////////////////////
 router.post('/addStock', asyncHandler(InventoryController.addStockToInventory))
+router.post('/create', asyncHandler(InventoryController.createInventory))
 
 module.exports = router 
 

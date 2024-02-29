@@ -10,6 +10,7 @@ const { authentication } = require("../../auth/authUtils")
 router.use(authentication)
 //////////////////////////
 router.post('/review', asyncHandler(CheckoutController.checkoutReview))
+router.post('/order', asyncHandler(CheckoutController.order))
 
 module.exports = router 
 

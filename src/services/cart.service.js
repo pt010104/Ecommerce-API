@@ -96,7 +96,7 @@ class CartService {
         }})
     }
 
-    static deleteFromCart = async({userId, productId}) => {
+    static deleteFromCart = async({userId, productId = []}) => {
         const cartList = await cart.findOne({
             where: {
                 cart_userId: userId,
@@ -104,14 +104,18 @@ class CartService {
             }
         
         })
+        
         const cartProducts = cartList.cart_products
-        const productIndex = cartProducts.findIndex((item) => item.productId == productId)
-        if(productIndex < 0)
-            throw new BadRequestError("Product not found in cart")
-        cartList.cart_count_products -= cartList.cart_products[productIndex].quantity
-        const result = cartList.cart_products.splice(productIndex, 1)
-       
+        
+        for (let index = cartProducts.length - 1; index >= 0; index--) {
+            const item = cartProducts[index];
+            if (productId.includes(item.productId)) {
+                cartList.cart_count_products -= cartList.cart_products[index].quantity;
+                cartList.cart_products.splice(index, 1);
+            }
+        }
         cartList.changed('cart_products', true);
+        
         return await cartList.save()
     }
 

@@ -6,13 +6,12 @@ class InventoryServiceTest {
         redisPubSubService.subscribe("purchase_events", (receivedChannel, message) => {
 
             console.log("Received message::", message)
-            InventoryServiceTest.updateInventory(message)
+            InventoryServiceTest.updateInventory(JSON.parse(message))
         })
     }
 
-    static updateInventory(message) {
-        const {productId, quantity} = message
-        console.log(`Updated inventory ${message} with quantity ${quantity}`)
+    static updateInventory({productId, quantity}) {
+        console.log(`Updated inventory ${productId} with quantity ${quantity}`)
     }
 }
 

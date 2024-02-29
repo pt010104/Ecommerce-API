@@ -1,6 +1,7 @@
 "use strict"
 const { Sequelize } = require("sequelize")
 const {inventory} = require("../inventory.model")
+const { BadRequestError } = require("../../core/error.response")
 
 const insertInventory  = async ({id, stock, shopId, location = "UnKnown"}) => {
     const result = await inventory.create({
@@ -12,20 +13,27 @@ const insertInventory  = async ({id, stock, shopId, location = "UnKnown"}) => {
     return result
 }
 const reservation = async ({productId, cartId, quantity})=>{
-    return await inventory.update(
+    
+    const result =  await inventory.findOne(
         {
-            inven_stock: Sequelize.literal (`inven_stock - ${quantity}`),
-            inven_reservations: Sequelize.literal (`array_append(inven_reservations, ${JSON.stringify({quantity, cartId, createOn: new Date() })})`) 
-        },
-        {
-            where: {
+            where: {    
                 inven_productId: productId,
                 inven_stock: {
                     [Sequelize.Op.gte]: quantity
                 }
             }
-        },
+        }
     )
+    if(!result)
+        throw new BadRequestError(`Cant find the produt in Inventory:: ${productId}`)
+
+    const newItem = JSON.stringify({ quantity, cartId, createOn: new Date() });
+    result.inven_reservations.push(newItem)
+    result.inven_stock -= quantity
+    result.changed("inven_reservations", true)
+    result.save()
+    
+    return result
 } 
 
 module.exports = {insertInventory, reservation}

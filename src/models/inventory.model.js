@@ -11,6 +11,10 @@ const inventory = db.define("inventories",
             primaryKey: true,
             autoIncrement: true,
         },
+        inven_productId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
        inven_location: {
             type: DataTypes.STRING,
             defaultValue: "UnKnown"

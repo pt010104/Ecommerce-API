@@ -17,9 +17,10 @@ app.use(compression())
 require('./configs/redis.config')
 
 //test pub/sub Redis
-const productTest = require("./tests/product.test")
-productTest.purchaseProduct("product:001", 5)
-require("./tests/inventory.test")
+
+// const productTest = require("./tests/product.test")
+// productTest.purchaseProduct("product:001", 5)
+// require("./tests/inventory.test")
 
 //init db
 db.sync().then(() => {

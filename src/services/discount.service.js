@@ -100,7 +100,7 @@ class DiscountService {
                     product_shop: shopId,
                     id: discount_product_ids
                 },
-                select: ["product_name", "product_thumb", "product_price"]
+                select: ["id", "product_name", "product_thumb", "product_price"]
             })
         }
 
@@ -149,12 +149,12 @@ class DiscountService {
             throw new BadRequestError("The code is expired")
 
         let totalOrder = 0
-        
+        let amount = 0 //total Discount
         if (foundDiscount.discount_min_order_value > 0)
         {       
             products.forEach(product => {
-                if (foundDiscount.discount_applies_to === "specific" && !foundDiscount.discount_product_ids.includes(product.productId))
-                    throw new BadRequestError(`The code does not apply to product_id:: ${product.id}`)
+                if (foundDiscount.discount_applies_to === "specific" && foundDiscount.discount_product_ids.includes(product.productId))
+                    amount += foundDiscount.discount_type === "fixed_amount" ? foundDiscount.discount_value : (product.price * product.quantity) * foundDiscount.discount_value / 100
                 totalOrder += product.price * product.quantity  
             })
             console.log ("totalOrder::", totalOrder)
@@ -162,14 +162,13 @@ class DiscountService {
                 throw new BadRequestError("Discount requires a minimum order value of " + foundDiscount.discount_min_order_value)
 
             foundDiscount.discount_users_used.push(userId)
-            console.log("User Id::",foundDiscount.discount_users_used)
             foundDiscount.discount_uses_count += 1
             foundDiscount.save({
                 fields: ["discount_users_used", "discount_uses_count"]
             })
         }
 
-        let amount = foundDiscount.discount_type === "fixed_amount" ? foundDiscount.discount_value : totalOrder * foundDiscount.discount_value / 100
+        
         amount = parseFloat(amount)
         return {
             totalOrder,

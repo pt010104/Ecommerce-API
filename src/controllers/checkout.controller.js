@@ -12,6 +12,15 @@ class CheckoutController
             }
         ).send(res)
     }
+
+    static order = async (req,res,next) => {
+        new SuccessResponse(
+            {
+                message: "Checkout Successfully",
+                metadata: await CheckoutService.orderByUser({...req.body, userId: req.user.userId})
+            }
+        ).send(res)
+    }
 }
 
 module.exports = CheckoutController

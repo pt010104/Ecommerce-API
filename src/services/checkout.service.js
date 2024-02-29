@@ -6,6 +6,7 @@ const { ProductFactory } = require("./product.service")
 const RedisService = require("./redis.service")
 const order = require ("../models/order.model")
 const { addStockToInventory } = require("./inventory.service")
+const cart= require("./cart.service")
 class CheckoutService {
     /**
      cartId:,
@@ -77,12 +78,14 @@ class CheckoutService {
         }
     }
 
-    static orderByUser = async ({cartId, userId, shop_order_ids, user_address = {}, user_payment = {}}) => {
+    static orderByUser = async ({cartId, userId, shop_order_ids, user_address = {}, user_payment = "COD"}) => {
         const {shop_order_ids_new, checkoutOrder} = await this.checkoutReview({cartId, userId, shop_order_ids})
         let products = []
         shop_order_ids_new.forEach((item) => {
             products = item.item_products
         })
+
+        let productIdDelete = []
 
         for (let i = 0; i < products.length; i++) {
             const {productId, quantity} = products[i]
@@ -91,7 +94,10 @@ class CheckoutService {
             if(!keyLock)
                 throw new BadRequestError("There are products has been updated, Check your cart again")
             else 
+            {
                 await RedisService.releaseLock(keyLock)
+                productIdDelete.push(productId)
+            }
         }
 
         const newOrder = await order.create({
@@ -101,11 +107,13 @@ class CheckoutService {
             order_payment: user_payment,
             order_products: shop_order_ids_new
         })
-
         //if insert successfully, Remove the products in user cart
         if(newOrder)
         {
-            
+            await cart.deleteFromCart({userId, productId: productIdDelete})
+            console.log("here")
+
+            return newOrder
         }
     }
 }
