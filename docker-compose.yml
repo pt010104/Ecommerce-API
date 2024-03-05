@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - 5050:5050
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+  db:
+    container_name: postgres
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=${DEV_DB_USER}
+      - POSTGRES_PASSWORD=${DEV_DB_PASSWORD}
+      - POSTGRES_DB=${DEV_DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - PGDATA=/data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: hisokaxxzk@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_LISTEN_PORT: 8001
+    ports:
+      - 8001:8001
+    depends_on:
+      - db
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+    restart: unless-stopped
+volumes:
+  pgadmin:
+  postgres:

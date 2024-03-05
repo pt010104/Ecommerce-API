@@ -5,7 +5,7 @@ const HEADER = {
     AUTHORIZATION: "authorization",
 }
 
-const {findById} = require('../services/apiKey.service')
+const {findById, findAll} = require('../services/apiKey.service')
 
 const apiKey = async (req,res,next) => {
     try {
@@ -18,10 +18,12 @@ const apiKey = async (req,res,next) => {
         
         }
 
+        console.log("Get all value::", await findAll())
+
         const objectKey = await findById(key)
         
         if(!objectKey) {
-            console.log("Null objectKey")
+            console.log("Null objectKey::", objectKey)
             return res.json({
                 status: 403,
                 message: "Forbidden Error"

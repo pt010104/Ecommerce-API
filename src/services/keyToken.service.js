@@ -24,8 +24,6 @@ class keyTokenService{
                     returning: true
                 }
             )
-            console.log("Tokens::",tokens)
-
             return tokens ? tokens.publicKey : null;
             
         } catch (error) {

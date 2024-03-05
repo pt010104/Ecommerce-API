@@ -1,6 +1,6 @@
 'use strict'
 
-const {products, clothes, electronics} = require("../models/products.model")
+const {products, clothes, electronics, furnitures} = require("../models/products.model")
 const {BadRequestError} = require("../core/error.response")
 const {findAllDProductForShop,publishProductByShop,unpublishProductByShop,searchProductByUser,findAllProducts, findProduct, updateProduct} = require("../models/repositories/products.repo")
 const {removeUndefined, updateNestedObjectParser} = require("../utils/index")
