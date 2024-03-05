@@ -22,21 +22,6 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: hisokaxxzk@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: password
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-      PGADMIN_LISTEN_PORT: 8001
-    ports:
-      - 8001:8001
-    depends_on:
-      - db
-    volumes:
-       - pgadmin:/var/lib/pgadmin
-    restart: unless-stopped
 volumes:
   pgadmin:
   postgres:
