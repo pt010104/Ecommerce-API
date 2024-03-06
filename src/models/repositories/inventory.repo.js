@@ -3,9 +3,9 @@ const { Sequelize } = require("sequelize")
 const {inventory} = require("../inventory.model")
 const { BadRequestError } = require("../../core/error.response")
 
-const insertInventory  = async ({id, stock, shopId, location = "UnKnown"}) => {
+const insertInventory  = async ({productId, stock, shopId, location = "UnKnown"}) => {
     const result = await inventory.create({
-        id: id,
+        inven_productId: productId,
         inven_stock: stock,
         inven_shopId: shopId,
         inven_location: location

@@ -5,7 +5,7 @@ const {BadRequestError} = require("../core/error.response")
 const {findAllDProductForShop,publishProductByShop,unpublishProductByShop,searchProductByUser,findAllProducts, findProduct, updateProduct} = require("../models/repositories/products.repo")
 const {removeUndefined, updateNestedObjectParser} = require("../utils/index")
 const {insertInventory} = require("../models/repositories/inventory.repo")
-
+const NotificationService = require("./notification.service")
 
 //define Factory
 class ProductFactory {
@@ -101,10 +101,20 @@ class Product {
         const product = await products.create({...this, product_id: idProduct})
         
         if (product){
-            insertInventory({
-                id: product.id,
+            await insertInventory({
+                productId: idProduct,
                 stock: this.product_quantity,
                 shopId: this.product_shop
+            })
+
+            await pushNotification({
+                type: 'SHOP-001',
+                receivedId: 1,
+                senderId: this.product_shop,
+                options: {
+                    product_name: this.product_name,
+                    shop_name: this.product_shop
+                }
             })
             console.log("Insert Inventory Success") 
         }
